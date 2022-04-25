@@ -1,25 +1,25 @@
-import os
 import random
-import sys
+import time
 
 import numpy as np
 import cv2
+from snake_class import Snake, direction_map
 
-
-# from snake import Snake
-from snake_class import Snake
-
-# from thegame.utils import get_food_position, check_if_lost, a_star_path
-from algorithms import a_star
 # Colors (R, G, B)
 black = (0, 0, 0)
 white = (255, 255, 255)
 red = (255, 0, 0)
 green = (0, 255, 0)
 
+font = cv2.FONT_HERSHEY_SIMPLEX
+fontScale = 0.3
+fontColor = (255, 255, 255)
+thickness = 1
+lineType = 2
+
 
 class Game:
-    def __init__(self, frame_x_size, frame_y_size, difficulty, snake):
+    def __init__(self, frame_x_size, frame_y_size, difficulty, snake, show_score=False):
 
         self.frame_x_size = frame_x_size
         self.frame_y_size = frame_y_size
@@ -30,129 +30,157 @@ class Game:
         self.canvas = np.zeros((self.frame_y_size, self.frame_x_size, 3))
 
         self.prev_total_distance = 0
-        self.total_distance_to_food = 0
+        # self.total_distance_to_food = 0
 
-        # pygame.display.set_caption('Snake game')
-        # pygame.display.set_mode((self.frame_x_size, self.frame_y_size))
+        self.observation_feature_names = [
+            "Head obstacles",
+            "Distance to food X",
+            "Distance to food Y",
+            "Distance to frame X",
+            "Distance to frame Y",
+            "Direction to food",
+        ]
 
-        # self.game_window = pygame.display.set_mode((self.frame_x_size,
-        #                                             self.frame_y_size))
-
-        # self.game_window = pygame.Surface
-        # self.game_window.set_mode((self.frame_x_size, self.frame_y_size))
-        # self.game_window.set_caption('Sange AI')
-
-        # self.game_window = pygame.display
-        # self.game_window.set_mode((self.frame_x_size, self.frame_y_size))
-
-        # FPS (frames per second) controller
-        # self.fps_controller = pygame.time.Clock()
-
-        # self.check_errors()
-        # self.draw_elements()
-        # _, _ = self.update_game()
-
+        self.prev_dist_to_food = 0
+        self.closer = False
         self.get_observation()
 
-    def draw_elements(self):
+        self.epsilon = 0
+        self.episode = -1
+        self.score = 0
+        self.show_score = show_score
 
+    def draw_elements(self):
         canvas = self.canvas.copy()
 
         # Draw snake body
         # self.game_window.fill(black)
         for iter, pos in enumerate(self.snake.body):
             if iter == 0:
-                cv2.rectangle(canvas, (pos[0], pos[1]), (pos[0] + 10, pos[1] + 10), white, -1)
+                cv2.rectangle(
+                    canvas, (pos[0], pos[1]), (pos[0] + 10, pos[1] + 10), white, -1
+                )
             else:
-                cv2.rectangle(canvas, (pos[0], pos[1]), (pos[0] + 10, pos[1] + 10), green, -1)
+                cv2.rectangle(
+                    canvas, (pos[0], pos[1]), (pos[0] + 10, pos[1] + 10), green, -1
+                )
 
         # Draw food
-        # pygame.draw.rect(self.game_window, red, pygame.Rect(self.food_position[0], self.food_position[1], 10, 10))
-        cv2.rectangle(canvas, (self.food_position[0], self.food_position[1]),
-                      (self.food_position[0] + 10, self.food_position[1] + 10), red, -1)
+        cv2.rectangle(
+            canvas,
+            (self.food_position[0], self.food_position[1]),
+            (self.food_position[0] + 10, self.food_position[1] + 10),
+            red,
+            -1,
+        )
 
-        cv2.imshow('window', canvas)
+        # show info
+        if self.show_score:
+            info_text = f"Score: {self.score}"
+        else:
+            info_text = f"Episode: {self.episode}, Epsilon: {self.epsilon:.3f}"
+
+        cv2.putText(
+            canvas,
+            info_text,
+            (int(self.frame_x_size / 10), self.frame_y_size - 20),
+            font,
+            fontScale,
+            fontColor,
+            thickness,
+            lineType
+        )
+
+        cv2.imshow("window", canvas)
         cv2.waitKey(5)
-        # time.sleep(0.1)
+        time.sleep(0.01)
         return
 
-    # @staticmethod
-    def update_game(self):
+    def update_game(self, done=False):
+
+        self.snake.move(self.snake.direction)
+        self.snake.grow(self.food_position)
+        reward = 0
+
+        self.game_lost = self.check_if_lost()
+        if self.game_lost:
+            done = True
+            reward = -10
+
+        self.draw_elements()
+
+        if self.closer:
+            reward += 1
+            self.closer = False
+
+        if self.snake.eaten:
+            self.snake.eaten = False
+            self.food_position = self.position_food()
+            reward = 10
+            print("MMMMMM")
+
+        return reward, done
+
+    def update_q_game(self, action):
+
+        direction = direction_map[action]
+        self.snake.update_direction(direction)
 
         self.snake.move(self.snake.direction)
         self.snake.grow(self.food_position)
 
-        self.game_lost = self.check_if_lost()
-        if self.game_lost:
-            return
-
         self.draw_elements()
 
-        return
+        reward = 0
+        if self.snake.eaten:
+            self.snake.eaten = False
+            self.food_position = self.position_food()
+            reward = 10
 
-        # self.reward = 0
-        # if self.total_distance_to_food < self.prev_total_distance:
-        #     self.reward += 5
-            # print('GOT Closer')
+        obs = self.get_observation()
 
-        # print('Prev dist: {}, current dist {}'.format(self.prev_total_distance, self.total_distance_to_food))
-
-        # self.prev_total_distance = self.total_distance_to_food
-
-        # if self.snake.eaten:
-        #     self.reward = 50
-        #     self.food_position = self.position_food()
-        #     self.snake.eaten = False
-        #     print('MMMMM')
-
-        # print(self.snake.eaten)
-        # self.game_lost = self.check_if_lost()
-        # if self.game_lost:
-        #     return
-
-        #     self.reward = -100
-
-
-        # self.game_window.update()
-        #
-        # pygame.display.update()
-        # self.game_window.update()
-
-        # self.fps_controller.tick(self.difficulty)
-
-        # return self.reward, self.game_lost
-
-        # print()
+        return obs, reward
 
     def position_food(self):
 
         while True:
-            position = [random.randrange(1, (self.frame_x_size // 10)) * 10,
-                        random.randrange(1, (self.frame_y_size // 10)) * 10]
+            position = [
+                random.randrange(1, (self.frame_x_size // 10)) * 10,
+                random.randrange(1, (self.frame_y_size // 10)) * 10,
+            ]
 
             if position not in self.snake.body:
                 return position
 
     def check_if_lost(self):
 
-        if self.snake.head_position[0] < 0 or self.snake.head_position[0] >= self.frame_x_size:
-            print('Out of frame')
+        # Out of frame X
+        if (
+            self.snake.head_position[0] < 0
+            or self.snake.head_position[0] >= self.frame_x_size
+        ):
+            print("Out of frame")
             return True
 
-        if self.snake.head_position[1] < 0 or self.snake.head_position[1] >= self.frame_y_size:
-            print('Out of frame')
+        # Out of frame Y
+        if (
+            self.snake.head_position[1] < 0
+            or self.snake.head_position[1] >= self.frame_y_size
+        ):
+            print("Out of frame")
             return True
 
         # for block in snake.body[1:]:
         if self.snake.head_position in self.snake.body[1:]:
-            print('Collision to body')
+            print("Collision to body")
             return True
 
         return False
 
     def get_observation(self):
 
-        self.observation_feature = []
+        # self.observation_feature = []
+        observation = []
 
         # Direction to food [-1, 0] = up, [-1, 1] = northeast, [0, 1] = east...
         dir_to_food = self.get_direction_to_food()
@@ -160,7 +188,9 @@ class Game:
         # Normalized distance
         y_food_dist, x_food_dist, total_dist = self.get_distance_to_food()
 
-        self.total_distance_to_food = total_dist
+        if total_dist < self.prev_dist_to_food:
+            self.closer = True
+            self.prev_dist_to_food = total_dist
 
         # Get obstacles in all direction
         # obs_right, obs_bottom, obs_left, obs_top = self.get_blocking_status()
@@ -171,24 +201,14 @@ class Game:
         # Obstacles around head
         head_obstacles = self.get_obstacles_around_head()
 
-        self.observation_feature += head_obstacles
-        self.observation_feature += [x_food_dist, y_food_dist, x_frame_dist, y_frame_dist]
-        self.observation_feature += dir_to_food
+        observation += head_obstacles
+        observation += [x_food_dist, y_food_dist, x_frame_dist, y_frame_dist]
+        observation += dir_to_food
+        # self.observation_feature += head_obstacles
+        # self.observation_feature += [x_food_dist, y_food_dist, x_frame_dist, y_frame_dist]
+        # self.observation_feature += dir_to_food
 
-        # print(dir_to_food[0], dir_to_food[1], dir_to_food[2])
-        # print(dir_to_food[7], "X.X", dir_to_food[3])
-        # print(dir_to_food[6], dir_to_food[5], dir_to_food[4])
-        # print('--------')
-
-        # print(head_obstacles[0], head_obstacles[1], head_obstacles[2])
-        # print(head_obstacles[7], "X.X", head_obstacles[3])
-        # print(head_obstacles[6], head_obstacles[5], head_obstacles[4])
-        # print('###########')
-
-        return np.asarray(self.observation_feature)
-
-
-    # def get_direction_to_food(self):
+        return np.asarray(observation)
 
     def get_direction_to_food(self):
 
@@ -222,9 +242,17 @@ class Game:
 
     def get_distance_to_food(self):
 
-        y_dist = np.sqrt((self.snake.head_position[1] - self.food_position[1]) ** 2) / self.frame_y_size
-        x_dist = np.sqrt((self.snake.head_position[0] - self.food_position[0]) ** 2) / self.frame_y_size
-        total = np.sqrt((x_dist ** 2 + y_dist** 2)) / np.sqrt((self.frame_y_size ** 2 + self.frame_x_size ** 2))
+        y_dist = (
+            np.sqrt((self.snake.head_position[1] - self.food_position[1]) ** 2)
+            / self.frame_y_size
+        )
+        x_dist = (
+            np.sqrt((self.snake.head_position[0] - self.food_position[0]) ** 2)
+            / self.frame_y_size
+        )
+        total = np.sqrt((x_dist**2 + y_dist**2)) / np.sqrt(
+            (self.frame_y_size**2 + self.frame_x_size**2)
+        )
 
         return float(y_dist), float(x_dist), float(total)
 
@@ -236,12 +264,12 @@ class Game:
         return float(y_dist), float(x_dist)
 
     def get_blocking_status(self):
-        """ See if there are obstacles between the head and frame"""
+        """See if there are obstacles between the head and frame"""
 
         obs_right = 0
         obs_bottom = 0
         obs_left = 0
-        obs_top = 0 # bool
+        obs_top = 0  # bool
 
         for point in self.snake.body[1:]:
 
@@ -300,8 +328,8 @@ class Game:
 
     def reset_game(self):
         direction = "RIGHT"
-        self.snake = Snake([100, 50], direction, [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]])
+        self.snake = Snake(
+            [100, 50], direction, [[100, 50], [100 - 10, 50], [100 - (2 * 10), 50]]
+        )
         self.food_position = self.position_food()
-        # self.draw_elements()
-        # self.update_game()
-
+        return self.get_observation()
