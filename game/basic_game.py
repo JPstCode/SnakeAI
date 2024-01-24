@@ -22,6 +22,9 @@ class BasicGame(GameBase):
         self.canvas = np.zeros(
             shape=(grid_size * self.block_size, grid_size * self.block_size, 3), dtype=np.uint8
         )
+        self.current_canvas = np.zeros(
+            shape=(grid_size * self.block_size, grid_size * self.block_size, 3), dtype=np.uint8
+        )
         self.snake = snake
         self.food = Position(x=0, y=0)
         self.show_game = show_game
@@ -76,7 +79,7 @@ class BasicGame(GameBase):
         if self.snake.eaten:
             food_color = GameColors.orange
         canvas = self._draw_block(canvas=canvas, position=self.food, color=food_color)
-
+        self.current_canvas = canvas
         # self.canvas = canvas
         if self.show_game:
             self.show_game_window(canvas=canvas)
@@ -119,10 +122,10 @@ class BasicGame(GameBase):
 
     def check_if_lost(self):
         """Check if snake collided to wall or to itself."""
-        if self.snake.head_position.x < 0 or self.snake.head_position.x >= self.canvas.shape[0]:
+        if self.snake.head_position.x < 0 or self.snake.head_position.x >= self.grid_size:
             return True
 
-        if self.snake.head_position.y < 0 or self.snake.head_position.y >= self.canvas.shape[0]:
+        if self.snake.head_position.y < 0 or self.snake.head_position.y >= self.grid_size:
             return True
 
         if self.snake.is_point_in_snake(
