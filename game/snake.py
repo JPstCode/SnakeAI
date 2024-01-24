@@ -17,6 +17,7 @@ class Snake:
         self.head_position = Position(x=3, y=0)
         self.body = self._initialize_body()
         self.eaten = False
+        self.direction = Direction.RIGHT
 
     @staticmethod
     def _initialize_body() -> list[Position]:
@@ -35,7 +36,7 @@ class Snake:
             new_y=self.head_position.y + Direction.get_y_step(direction=self.direction),
         )
 
-    def update_direction(self, new_direction: Direction) -> None:
+    def update_direction(self, new_direction: str) -> None:
         """Update snake direction."""
         if self.direction == new_direction:
             pass
