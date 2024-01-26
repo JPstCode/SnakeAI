@@ -27,7 +27,9 @@ def main():
     args = parse_arguments()
     snake = Snake()
     env = RLGame(grid_size=args.grid_size, snake=snake, show_game=True)
-    model = initialize_model(observation=env.get_observation(), action_size=4, weights_path=args.weights_path)
+    model = initialize_model(
+        observation=env.get_observation(), action_size=4, weights_path=args.weights_path
+    )
 
     while True:
         state = env.get_observation()
