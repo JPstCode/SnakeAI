@@ -44,6 +44,17 @@ class Direction:
         else:
             return 0
 
+    @staticmethod
+    def map_action_to_direction(action: int) -> str:
+        if action == 0:
+            return "RIGHT"
+        elif action == 1:
+            return "DOWN"
+        elif action == 2:
+            return "LEFT"
+        else:
+            return "UP"
+
 
 class Position:
     """Store position of object"""
