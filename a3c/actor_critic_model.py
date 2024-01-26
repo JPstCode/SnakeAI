@@ -64,7 +64,9 @@ class ActorCriticModel(tf.keras.Model):
         self.save_weights(output_path / f"{episode}_a3c.keras")
 
 
-def initialize_model(observation: npt.NDArray, action_size: int, weights_path: Optional[Path]) -> ActorCriticModel:
+def initialize_model(
+    observation: npt.NDArray, action_size: int, weights_path: Optional[Path]
+) -> ActorCriticModel:
     """Initialize model and load weights if specified."""
     state_size = observation.shape
     model = ActorCriticModel(state_size=state_size, action_size=action_size)

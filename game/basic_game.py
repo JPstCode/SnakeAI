@@ -88,9 +88,7 @@ class BasicGame(GameBase):
     def show_game_window(canvas: npt.NDArray):
         """Draw game."""
         canvas = cv2.filter2D(
-            cv2.pyrUp(canvas),
-            -1,
-            np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+            cv2.pyrUp(canvas), -1, np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
         )
 
         cv2.imshow('Game', cv2.pyrUp(canvas))
