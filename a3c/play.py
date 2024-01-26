@@ -3,8 +3,12 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+import numpy as np
+import tensorflow as tf
+
 from game.snake import Snake
 from game.rl_game import RLGame
+from game.data_structures import Direction
 from a3c.actor_critic_model import initialize_model
 
 
@@ -24,6 +28,19 @@ def main():
     snake = Snake()
     env = RLGame(grid_size=args.grid_size, snake=snake, show_game=True)
     model = initialize_model(observation=env.get_observation(), action_size=4, weights_path=args.weights_path)
+
+    while True:
+        state = env.get_observation()
+        action_logits, value = model(tf.expand_dims(state, 0))
+        probs = tf.nn.softmax(action_logits)
+        action = np.random.choice(4, p=probs.numpy()[0])
+        new_direction = Direction.map_action_to_direction(action=action)
+        env.snake.update_direction(new_direction=new_direction)
+
+        # Take a step
+        _, done = env.update_game()
+        if done:
+            env.reset_game()
 
 
 if __name__ == '__main__':

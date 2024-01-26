@@ -19,10 +19,10 @@ class BasicGame(GameBase):
         super().__init__()
         self.block_size = 10  # For convenience
         self.grid_size = grid_size
-        self.canvas = np.zeros(
+        self.blank_canvas = np.zeros(
             shape=(grid_size * self.block_size, grid_size * self.block_size, 3), dtype=np.uint8
         )
-        self.current_canvas = np.zeros(
+        self.game_canvas = np.zeros(
             shape=(grid_size * self.block_size, grid_size * self.block_size, 3), dtype=np.uint8
         )
         self.snake = snake
@@ -68,7 +68,7 @@ class BasicGame(GameBase):
         """
         Render the current state of the game.
         """
-        canvas = self.canvas.copy()
+        canvas = self.blank_canvas.copy()
         for idx, position in enumerate(self.snake.body):
             if idx == 0:
                 canvas = self._draw_block(canvas=canvas, position=position, color=GameColors.white)
@@ -79,19 +79,25 @@ class BasicGame(GameBase):
         if self.snake.eaten:
             food_color = GameColors.orange
         canvas = self._draw_block(canvas=canvas, position=self.food, color=food_color)
-        self.current_canvas = canvas
-        # self.canvas = canvas
+
+        self.game_canvas = canvas
         if self.show_game:
             self.show_game_window(canvas=canvas)
 
     @staticmethod
     def show_game_window(canvas: npt.NDArray):
         """Draw game."""
-        cv2.imshow('Game', canvas)
+        canvas = cv2.filter2D(
+            cv2.pyrUp(canvas),
+            -1,
+            np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+        )
+
+        cv2.imshow('Game', cv2.pyrUp(canvas))
         cv2.waitKey(5)
         time.sleep(0.01)
 
-    def _draw_block(self, canvas: npt.NDArray, position: Position, color: tuple):
+    def _draw_block(self, canvas: npt.NDArray, position: Position, color: tuple) -> npt.NDArray:
         """Draw block to canvas"""
         left_corner_x = position.x * self.block_size
         left_corner_y = position.y * self.block_size
