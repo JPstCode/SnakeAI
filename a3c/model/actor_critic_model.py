@@ -3,7 +3,7 @@
 from typing import Tuple, Optional
 from pathlib import Path
 
-import numpy.typing as npt
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 from keras.models import Sequential
@@ -65,7 +65,7 @@ class ActorCriticModel(tf.keras.Model):
 
 
 def initialize_model(
-    observation: npt.NDArray, action_size: int, weights_path: Optional[Path]
+    observation: np.ndarray, action_size: int, weights_path: Optional[Path]
 ) -> ActorCriticModel:
     """Initialize model and load weights if specified."""
     state_size = observation.shape
