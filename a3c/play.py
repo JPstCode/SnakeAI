@@ -9,7 +9,7 @@ import tensorflow as tf
 from game.snake import Snake
 from game.rl_game import RLGame
 from game.data_structures import Direction
-from a3c.actor_critic_model import initialize_model
+from a3c.model.actor_critic_model import initialize_model
 
 
 def parse_arguments() -> argparse.Namespace:
