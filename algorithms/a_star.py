@@ -8,7 +8,7 @@ from game.basic_game import BasicGame
 
 
 def parse_arguments() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Hamiltonian loop example.")
+    parser = argparse.ArgumentParser(description="A* example.")
     parser.add_argument(
         "--grid_size", type=int, default=6, help="Specify the grid size for the game."
     )
