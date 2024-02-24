@@ -13,7 +13,7 @@ from a3c.model.actor_critic_model import initialize_model
 
 
 def parse_arguments() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Hamiltonian loop example.")
+    parser = argparse.ArgumentParser(description="A3C example.")
     parser.add_argument(
         "--grid_size", type=int, default=6, help="Specify the grid size for the game."
     )
@@ -30,6 +30,7 @@ def main():
     model = initialize_model(
         observation=env.get_observation(), action_size=4, weights_path=args.weights_path
     )
+    env.reset_game()
 
     while True:
         state = env.get_observation()

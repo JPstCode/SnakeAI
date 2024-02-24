@@ -87,12 +87,8 @@ class BasicGame(GameBase):
     @staticmethod
     def show_game_window(canvas: npt.NDArray):
         """Draw game."""
-        canvas = cv2.filter2D(
-            cv2.pyrUp(canvas), -1, np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-        )
-
-        cv2.imshow('Game', cv2.pyrUp(canvas))
-        cv2.waitKey(5)
+        cv2.imshow('Game window', canvas)
+        cv2.waitKey(1)
         time.sleep(0.01)
 
     def _draw_block(self, canvas: npt.NDArray, position: Position, color: tuple) -> npt.NDArray:

@@ -20,6 +20,18 @@ class RLGame(BasicGame):
         self.step: int = 0
         self.step_limit: Optional[int] = 5000
 
+    def reset_game(self):
+        """
+        Reset the game to its initial state.
+        """
+        self.observation_que.clear()
+        self.snake.reset_snake()
+        self.draw_elements()
+        self.position_food()
+        self.game_lost = False
+        self.game_won = False
+        self.score = 0
+
     def update_game(self) -> (float, bool):
         """Play one step then return reward and done flag."""
         self.snake.move()
@@ -35,6 +47,7 @@ class RLGame(BasicGame):
             self.snake.eaten = False
             self.position_food()
             reward = 1.0
+            self.score += 1
 
         if self.step > self.step_limit:
             done = True
@@ -42,6 +55,7 @@ class RLGame(BasicGame):
         if self.game_won:
             done = True
             reward = 1.0
+            self.score += 1
 
         self.draw_elements()
 
