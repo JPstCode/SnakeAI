@@ -3,26 +3,27 @@
 This repository contains Python 3.9 implementations of the classic Snake game and demonstrations of example algorithms, 
 including Hamiltonian cycle, A*, and A3C.
 
-## Installation
+# Installation
 
-Original implementation was written with Python 3.9.13
+Original implementation was written with Python 3.9.13.
 
 Install required packages with pip:
+
 ```bash
 pip install -r requirements.txt
 ```
 
+# Algorithms
 
-## Algorithms
-
-### Hamiltonian Cycle
+## Hamiltonian Cycle
 
 ![alt text](docs/Hamiltonian.gif)
 
-Easiest way to win the game is to use hamiltonian cycle. Hamiltonian cycle is a closed loop that visits each cell 
+Easiest way to win the game is to use Hamiltonian cycle. Hamiltonian cycle is a closed loop that visits each cell 
 exactly once, and returns to starting point [1].
 
 Run Hamiltonian path example:
+
 ```bash
 python algorithms\hamiltonian.py 
 ```
@@ -33,24 +34,25 @@ Specify grid size and number of repeats with keyword arguments. For example run 
 python algorithms\hamiltonian.py --grid_size 10 --repeats 5 
 ```
 
-
-### A*
+## A*
 
 ![alt text](docs/A_star.gif)
 
 A* star is a pathfinding algorithm that finds shortest path from source to goal [2]. 
 
 Run A* path example:
+
 ```bash
 python algorithms\a_star.py 
 ```
 
-Specify grid size and number of repeats with keyword arguments
+Specify grid size and number of repeats with keyword arguments:
+
 ```bash
---grid_size --repeats 
+python algorithms\a_star.py --grid_size 10 --repeats 5
 ```
 
-### Asynchronous Advantage Actor Critic (A3C)
+## Asynchronous Advantage Actor Critic (A3C)
 
 ![alt text](docs/A3C.gif)
 
@@ -64,6 +66,14 @@ maximize the rewards [4].
 A3C is a deep reinforcement learning algorithm, where multiple agents are executed asynchronously
 on multiple instances of the environment [5]. 
 
+### Run demo with pretrained Agent
+
+This repository contains pretrained weights for an Agent trained on 6x6 grid. Run demo with command
+
+```bash
+python a3c\play.py --weights_path a3c/model/weights/model.keras
+```
+
 ### Training Agent
 
 Start training by running train.py. Execution requires positional save_folder argument. 
@@ -74,14 +84,16 @@ For example start training and save log and weights to C:\tmp\a3c-training folde
 python a3c\training\train.py C:\tmp\a3c-training
 ```
 
-Training will run until max_episodes limit is reached. Default value 15000. Change value with keyword 
-argument
+Training will run until max_episodes limit is reached. Default value for limit is 15000. Change value with 
+--max_episodes argument.
+
+Continue training for pretrained model by defining --weights_path.
 
 ```bash
-python a3c\training\train.py C:\tmp\a3c-training --max_episode 1000
+python a3c\training\train.py C:\tmp\a3c-training --weights_path "path_to_weights"
 ```
 
-See available all arguments for the training with --help  
+See all available arguments for the training with --help  
 
 ```bash
 python a3c\training\train.py --help
