@@ -1,5 +1,9 @@
 """Play Snake game with model."""
-from __future__ import annotations
+import sys
+import os
+
+sys.path.append(os.getcwd())
+
 import argparse
 from pathlib import Path
 
@@ -20,6 +24,9 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--weights_path", type=Path, default=None, help="Path to model weights (.keras)"
     )
+    parser.add_argument(
+        "--episodes", type=int, default=10, help="Specify how many episodes game is running."
+    )
     return parser.parse_args()
 
 
@@ -32,7 +39,8 @@ def main():
     )
     env.reset_game()
 
-    while True:
+    episode_idx = 0
+    while episode_idx < args.episodes:
         state = env.get_observation()
         action_logits, value = model(tf.expand_dims(state, 0))
         probs = tf.nn.softmax(action_logits)
@@ -44,6 +52,7 @@ def main():
         _, done = env.update_game()
         if done:
             env.reset_game()
+            episode_idx += 1
 
 
 if __name__ == '__main__':
