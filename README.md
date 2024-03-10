@@ -22,7 +22,7 @@ pip install -r requirements.txt
 Easiest way to win the game is to use Hamiltonian cycle. Hamiltonian cycle is a closed loop that visits each cell 
 exactly once, and returns to starting point [1].
 
-Run Hamiltonian path example:
+Run Hamiltonian cycle example:
 
 ```bash
 python algorithms\hamiltonian.py 
@@ -40,7 +40,7 @@ python algorithms\hamiltonian.py --grid_size 10 --repeats 5
 
 A* star is a pathfinding algorithm that finds shortest path from source to goal [2]. 
 
-Run A* path example:
+Run A* example:
 
 ```bash
 python algorithms\a_star.py 
@@ -56,12 +56,15 @@ python algorithms\a_star.py --grid_size 10 --repeats 5
 
 ![alt text](docs/A3C.gif)
 
-Actor-Critic method combines benefits from value-based and policy-based methods. The actor (policy function)
-proposes a set of possible actions given a state. The critic (value function) evaluates actions taken by the actor
-by determining expected return for an agent at given state [3].
+Actor-Critic method combines benefits from value-based and policy-based methods. The Actor (policy function)
+proposes a set of possible actions in a given state. The Critic (value function) evaluates actions taken by the Actor
+by estimating future rewards [3]. Output of the Critic is a scalar signal that drives the learning for both Actor
+and Critic [4].
 
-During training Agent and Critic learn to perform their tasks, such that the recommended actions from the actor 
-maximize the rewards [4].
+After each step, Critic evaluates if things have gone better of worse. The evaluation is the TD Error. In 
+case the TD Error is positive, tendency for related actions is increased [4]. 
+
+<img src="docs/AC_Training_Graph.png" width="400" title="Actor-Critic learning architecture [4].">
 
 A3C is a deep reinforcement learning algorithm, where multiple agents are executed asynchronously
 on multiple instances of the environment [5]. 
@@ -105,8 +108,8 @@ python a3c\training\train.py --help
 
 [2] A* [wikipedia](https://en.wikipedia.org/wiki/A*_search_algorithm)
 
-[3] Asynchronous Methods for Deep Reinforcement Learning [arXiv:1602.01783](https://arxiv.org/pdf/1602.01783.pdf)
+[3] Mnih, V. Et al. (2016). Asynchronous Methods for Deep Reinforcement Learning, [arXiv:1602.01783](https://arxiv.org/pdf/1602.01783.pdf)
 
-[4] Playing CartPole with the Actor-Critic method [Tensorflow tutorials](https://www.tensorflow.org/tutorials/reinforcement_learning/actor_critic)
+[4] R. Sutton & A. Barto, (2014-2015), Reinforcement Learning An Introduction, p. 257, [Book PDF](https://web.stanford.edu/class/psych209/Readings/SuttonBartoIPRLBook2ndEd.pdf)
 
 [5] Actor Critic Method [Keras examples](https://keras.io/examples/rl/actor_critic_cartpole/)
