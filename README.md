@@ -3,6 +3,17 @@
 This repository contains Python 3.9 implementations of the classic Snake game and demonstrations of example algorithms, 
 including Hamiltonian cycle, A*, and A3C.
 
+### Related tutorials
+For A3C, the implementation is based on following tutorials: 
+
+Raymond Yuan, 2018, Deep Reinforcement Learning: Playing CartPole through Asynchronous Advantage Actor Critic (A3C) with tf.keras 
+and eager execution [link](https://blog.tensorflow.org/2018/07/deep-reinforcement-learning-keras-eager-execution.html)
+
+Playing CartPole with the Actor-Critic method [link](https://www.tensorflow.org/tutorials/reinforcement_learning/actor_critic)
+
+Apoorv Nandan, (2013), Implement Actor Critic Method in CartPole environment [link](https://keras.io/examples/rl/actor_critic_cartpole/)
+
+
 # Installation
 
 Original implementation was written with Python 3.9.13.
