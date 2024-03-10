@@ -4,6 +4,11 @@ Based on tensorflow tutorials:
 https://www.tensorflow.org/tutorials/reinforcement_learning/actor_critic
 https://blog.tensorflow.org/2018/07/deep-reinforcement-learning-keras-eager-execution.html
 """
+import os
+import sys
+
+sys.path.append(os.getcwd())
+
 import argparse
 from pathlib import Path
 
@@ -12,13 +17,13 @@ from a3c.training.master_agent import MasterAgent
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="A3C Training loop.")
+    parser.add_argument("save_dir", type=Path, help="Path where to save weights.")
     parser.add_argument(
         "--grid_size", type=int, default=6, help="Specify the grid size for the game."
     )
     parser.add_argument(
         "--weights_path", type=Path, default=None, help="Path to model weights (.keras)"
     )
-    parser.add_argument("--save_dir", type=Path, required=True, help="Path where to save weights.")
     parser.add_argument(
         "--number_of_workers",
         type=int,
@@ -26,7 +31,7 @@ def parse_arguments() -> argparse.Namespace:
         help="Specify how many workers are utilized in training.",
     )
     parser.add_argument(
-        "--max_episodes", type=int, default=100000, help="How many episodes training is running."
+        "--max_episodes", type=int, default=15000, help="How many episodes training is running."
     )
     parser.add_argument(
         "--gamma",
