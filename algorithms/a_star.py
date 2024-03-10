@@ -1,4 +1,8 @@
 """A* example."""
+import os
+import sys
+
+sys.path.append(os.getcwd())
 
 import argparse
 
@@ -12,6 +16,9 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--grid_size", type=int, default=6, help="Specify the grid size for the game."
     )
+    parser.add_argument(
+        "--repeats", type=int, default=10, help="Specify how many repeats game is running."
+    )
     return parser.parse_args()
 
 
@@ -21,7 +28,8 @@ def main():
     env = BasicGame(grid_size=args.grid_size, snake=snake, show_game=True)
     env.reset_game()
     env.draw_elements()
-    while True:
+    iterations = 0
+    while iterations < args.repeats:
         path = get_a_star_path(
             goal=env.food,
             start=env.snake.head_position,
@@ -37,6 +45,7 @@ def main():
             if env.game_lost:
                 env.reset_game()
                 env.draw_elements()
+                iterations += 1
                 break
 
 
