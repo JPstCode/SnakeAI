@@ -88,6 +88,10 @@ This repository contains pretrained weights for an Agent trained on 6x6 grid. Ru
 python a3c\play.py --weights_path a3c/model/weights/model.keras
 ```
 
+Model architecture mimics network presented in the paper 
+[Playing Atari with Deep Reinforcement Learning.](https://arxiv.org/abs/1312.5602)
+
+
 ### Training Agent
 
 Start training by running train.py. Execution requires positional save_folder argument. 
